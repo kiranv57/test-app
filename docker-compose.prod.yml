@@ -1,0 +1,28 @@
+version: '3.8'
+
+# Production gateway stack with Nginx entry point
+services:
+  web-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: prod-test-app-gateway
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost/health || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  # Isolated bridge network for internal services
+  app-network:
+    driver: bridge
+    name: app-network
